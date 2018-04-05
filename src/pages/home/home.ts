@@ -22,6 +22,7 @@ export class HomePage implements OnInit {
     latestMeetup: any;
     checkedIn: boolean;
     currentUser: any;
+    showMore: boolean;
 
     constructor(
         public navCtrl: NavController,
@@ -83,6 +84,9 @@ export class HomePage implements OnInit {
         return this.jsonp.get(url).map(res => res.json());
     }
 
+    toggleDescription(){
+        this.showMore = !this.showMore;
+    }
     // uggggh. whatever - Myke
     trimDescription(description) {
         let trimSpot = description.indexOf('<p>Pizza');
