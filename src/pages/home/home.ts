@@ -130,7 +130,7 @@ export class HomePage implements OnInit {
             }
         }
 
-        return true;
+        return false;
     }
 
     rsvp(eventId){
@@ -176,7 +176,7 @@ export class HomePage implements OnInit {
     }
     
     showCancelRsvp(){
-        if(this.latestMeetup && !this.allowedToCheckin() && !this.checkCheckIn && this.rsvpd){
+        if(this.latestMeetup && !this.allowedToCheckin() && !this.checkedIn && this.rsvpd){
             return true;
         }
         return false;
