@@ -25,6 +25,8 @@ export class HomePage implements OnInit {
     currentUser: any;
     showMore: boolean;
     rsvpd: boolean;
+    logs: string[];
+    logging: boolean;
 
     constructor(
         public navCtrl: NavController,
@@ -38,6 +40,8 @@ export class HomePage implements OnInit {
         private meetup: Meetup,
         private webdevs: WebDevs
     ) {
+        this.logs = [];
+        this.logging = false;
         this.checkedIn = false;
         this.items = db.list('user').valueChanges();
 
@@ -46,6 +50,13 @@ export class HomePage implements OnInit {
         this.initPushNotifications();
     }
 
+    log(message, obj={}){
+        if(this.logging){
+            this.logs.push(`${message}: ${JSON.stringify(obj)}`);
+        }
+
+        console.log(message, obj);
+    }
 
     ngOnInit() {
         this.attendeeProvier.getAttendees().subscribe(
@@ -54,23 +65,23 @@ export class HomePage implements OnInit {
         this.meetup.getCurrentUserInfo().subscribe(
             userData => {
                 this.currentUser = userData.json();
-                console.log('current user: ', this.currentUser);
+                this.log('current user: ', this.currentUser);
                 this.checkRsvp();
             }, err => {
-                console.log('error');
+                this.log('error getting User info', err);
             });
     }
 
     checkRsvp(){
         if(this.latestMeetup && this.currentUser && !this.checkedIn){
-            console.log('checking meetup rsvp');
+            this.log('checking meetup rsvp');
             this.meetup.checkRSVP(this.latestMeetup.id, this.currentUser.id).subscribe(
                 rsvpd => {
                     this.rsvpd = rsvpd;
-                    console.log('rsvp:', rsvpd);
+                    this.log('rsvp:', rsvpd);
                 },
                 err => {
-                    console.log('failed to determine rsvp');
+                    this.log('error determining rsvp', err);
                 }
             )
         }
@@ -78,19 +89,19 @@ export class HomePage implements OnInit {
     getLatestMeetup() {
         return this.meetup.getLatestEvent().subscribe(
             latestEvent => {
-                console.log('latestEvent: ', latestEvent);
+                this.log('latestEvent: ', latestEvent);
                 this.latestMeetup = latestEvent
                 this.checkRsvp();
             },
             err => {
-                console.log(err);
+                this.log('error getting latest meetup info', err);
             }
         );
     }
 
     checkIn(){
         this.webdevs.checkin(this.currentUser).subscribe(goodCheckIn => {
-            console.log('check response:', goodCheckIn);
+            this.log('check response:', goodCheckIn);
             if(goodCheckIn) {
                 this.checkedIn = true;
                 this.cacheCheckin();
@@ -139,7 +150,7 @@ export class HomePage implements OnInit {
                 this.rsvpd = true;
             },
             err => {
-                console.log('failed to rsvp');
+                this.log('error rsvping', err);
             }
         );
     }
@@ -150,7 +161,7 @@ export class HomePage implements OnInit {
                 this.rsvpd = false;
             },
             err => {
-                console.log('failed to cancel rsvp');
+                this.log('error cancelling rsvp', err);
             }
         );
     }
